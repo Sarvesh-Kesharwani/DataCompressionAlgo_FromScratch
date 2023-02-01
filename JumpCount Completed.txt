@@ -1,0 +1,83 @@
+#include <iostream>
+#include <fstream>
+#include<cstdlib>
+using namespace std;
+//Letting that out sorting starts with Common "0":
+int main()
+{
+    char *ram;int temp0=0,temp1=0;int temppos=16;
+    int jumpat0[100],jumpat1[100];int lastpointat0=23;int lastpointat1=23;
+    ram = (char*) malloc(3*sizeof(char));int index0=0,index1=0;
+
+    ifstream infile;
+    infile.open("by.dat",ios::binary | ios::in);
+    infile.read(ram,3);
+
+    ofstream outfile;
+    outfile.open("outputfile.dat",ios::binary | ios::out);
+    outfile.write(ram,3);
+
+    ofstream file0;
+    file0.open("0.dat",ios::binary | ios::out);
+    ofstream file1;
+    file1.open("1.dat",ios::binary | ios::out);
+
+    if(!infile.is_open())
+    cout<<"error while opening the file";
+    else
+    {
+        for(int i=23;i<=0;i-3)
+            {
+                if(*ram & (1 << i))//if common 1
+                    {
+                        if(*ram & (1<<(i-1)))//add next n-1 bits to temp1
+                            {temp1 = temp1 | (1<<temppos);
+                            temppos--;}
+                        else temppos--;
+
+                        if(*ram & (1<<(i-2)))//add next n-2 bits to temp1
+                            {temp1 = temp1 | (1<<temppos);
+                            temppos--;}
+                        else temppos--;
+//counting JUMPS
+
+                        if(lastpointat1-3 != i)
+                        {
+                            jumpat1[0]=lastpointat1;
+                            jumpat1[index1++];
+                        }
+                        else lastpointat1=i;
+
+                    }
+                else//if common 0 then add next 2 bits to temp0
+                    {if(*ram & (1<<(char)(i-1)))//add next n-1 bits to temp0
+                        {temp0 = temp0 | (1<<temppos);
+                        temppos--;}
+                    else temppos--;
+
+                    if(*ram & (1<<(i-2)))//add next n-2 bits to temp0
+                        {temp0 = temp0 | (1<<temppos);
+                        temppos--;}
+                    else temppos--;
+
+//counting JUMPS
+
+                        if(lastpointat0-3 != i)
+                        {
+                            jumpat0[0]=lastpointat0;
+                            jumpat0[index0++];
+                        }
+                        else lastpointat0=i;
+
+                    }
+            }
+            //bits sorting to temp1 and temp0 completed:
+            //adding temp1 and temp0 to file1 and file0:
+            file1.write(temp1,2);
+            file0.write(temp0,2);
+
+            //Resetting Everything
+            index0=0,index1=0;
+    }
+    return 0;
+}
